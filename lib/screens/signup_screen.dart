@@ -41,48 +41,57 @@ class _SignupScreenState extends State<SignupScreen> {
 
     setState(() => _isLoading = true);
 
-    final db = DatabaseHelper.instance;
-    final email = _emailController.text.trim();
-    final studentId = _studentIdController.text.trim();
+    try {
+      final db = DatabaseHelper.instance;
+      final email = _emailController.text.trim();
+      final studentId = _studentIdController.text.trim();
 
-    final emailTaken = await db.isEmailTaken(email);
-    if (!mounted) return;
-    if (emailTaken) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This email is already registered')),
+      final emailTaken = await db.isEmailTaken(email);
+      if (!mounted) return;
+      if (emailTaken) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('This email is already registered')),
+        );
+        return;
+      }
+
+      final studentIdTaken = await db.isStudentIdTaken(studentId);
+      if (!mounted) return;
+      if (studentIdTaken) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('This student ID is already registered')),
+        );
+        return;
+      }
+
+      final user = UserModel(
+        fullName: _fullNameController.text.trim(),
+        gender: _gender,
+        email: email,
+        studentId: studentId,
+        academicLevel: _academicLevel,
+        password: _passwordController.text,
       );
-      return;
-    }
 
-    final studentIdTaken = await db.isStudentIdTaken(studentId);
-    if (!mounted) return;
-    if (studentIdTaken) {
-      setState(() => _isLoading = false);
+      await db.createUser(user);
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This student ID is already registered')),
+        const SnackBar(content: Text('Signup successful. Please login.')),
       );
-      return;
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      final message = e.toString().contains('databaseFactory not initialized')
+          ? 'SQLite is not supported on web. Run on Android emulator/device.'
+          : 'Signup failed. Please try again.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
-
-    final user = UserModel(
-      fullName: _fullNameController.text.trim(),
-      gender: _gender,
-      email: email,
-      studentId: studentId,
-      academicLevel: _academicLevel,
-      password: _passwordController.text,
-    );
-
-    await db.createUser(user);
-
-    if (!mounted) return;
-
-    setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Signup successful. Please login.')),
-    );
-    Navigator.of(context).pop();
   }
 
   @override

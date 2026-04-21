@@ -33,34 +33,43 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    final db = DatabaseHelper.instance;
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
+    try {
+      final db = DatabaseHelper.instance;
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-    final UserModel? userByEmail = await db.getUserByEmail(email);
+      final UserModel? userByEmail = await db.getUserByEmail(email);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (userByEmail == null) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login failed: email does not exist')),
+      if (userByEmail == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login failed: email does not exist')),
+        );
+        return;
+      }
+
+      if (userByEmail.password != password) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login failed: incorrect password')),
+        );
+        return;
+      }
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => HomeScreen(user: userByEmail)),
       );
-      return;
+    } catch (e) {
+      if (!mounted) return;
+      final message = e.toString().contains('databaseFactory not initialized')
+          ? 'SQLite is not supported on web. Run on Android emulator/device.'
+          : 'Login failed. Please try again.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
-
-    if (userByEmail.password != password) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login failed: incorrect password')),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = false);
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => HomeScreen(user: userByEmail)),
-    );
   }
 
   @override

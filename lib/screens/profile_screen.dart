@@ -84,6 +84,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _pickImage(ImageSource.gallery);
               },
             ),
+            if (_imagePath != null)
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text('Remove Photo', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  setState(() => _imagePath = null);
+                },
+              ),
           ],
         ),
       ),
@@ -170,17 +179,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 48,
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                           backgroundImage:
                               hasImage ? FileImage(File(_imagePath!)) : null,
                           child: hasImage
                               ? null
-                              : const Icon(Icons.person, size: 48),
+                              : Icon(Icons.person, size: 48, color: Theme.of(context).colorScheme.onPrimaryContainer),
                         ),
                         const SizedBox(height: 8),
                         OutlinedButton.icon(
                           onPressed: _showImageSourceSheet,
                           icon: const Icon(Icons.image_outlined),
-                          label: const Text('Change Photo'),
+                          label: Text(_imagePath == null ? 'Add Photo' : 'Change Photo'),
                         ),
                       ],
                     ),

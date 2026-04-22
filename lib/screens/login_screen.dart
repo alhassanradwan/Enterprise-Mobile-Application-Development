@@ -17,13 +17,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailFocusNode = FocusNode();
   bool _isLoading = false;
   bool _hidePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Request focus after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _emailFocusNode.requestFocus();
+    });
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocusNode.dispose();
     super.dispose();
   }
 
@@ -96,6 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _emailController,
+                    focusNode: _emailFocusNode,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: 'University Email',

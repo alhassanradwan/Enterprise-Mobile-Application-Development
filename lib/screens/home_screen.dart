@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../db/database_helper.dart';
 import '../models/task_model.dart';
 import '../models/user_model.dart';
+import '../services/sync_service.dart';
 import '../widgets/task_tile.dart';
 import 'add_edit_task_screen.dart';
 import 'login_screen.dart';
@@ -105,6 +106,30 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _syncWithServer() async {
+    setState(() => _isLoading = true);
+    
+    final result = await SyncService.syncUserTasks(_currentUser.id!);
+    
+    if (!mounted) return;
+    
+    setState(() => _isLoading = false);
+    
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Sync successful')),
+      );
+      await _loadTasks();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['error'] ?? 'Sync failed'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   void _logout() {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -120,6 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('My Tasks'),
         actions: [
+          IconButton(
+            onPressed: _syncWithServer,
+            icon: const Icon(Icons.cloud_sync),
+            tooltip: 'Sync with Server',
+          ),
           IconButton(
             onPressed: _openProfile,
             icon: const Icon(Icons.person_outline),

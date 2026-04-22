@@ -1,0 +1,9 @@
+{
+  "dart.flutterSdkPath": "C:\\Users\\Lenovo\\.puro\\envs\\stable\\flutter",
+  "terminal.integrated.env.windows": {
+    "ANDROID_SDK_ROOT": "C:\\Users\\Lenovo\\AppData\\Local\\Android\\Sdk",
+    "ANDROID_HOME": "C:\\Users\\Lenovo\\AppData\\Local\\Android\\Sdk",
+    "JAVA_HOME": "C:\\Program Files\\Android\\Android Studio\\jbr",
+    "PATH": "${env:PATH};C:\\Users\\Lenovo\\.puro\\envs\\stable\\flutter\\bin;C:\\Users\\Lenovo\\AppData\\Local\\Android\\Sdk\\platform-tools;C:\\Users\\Lenovo\\AppData\\Local\\Android\\Sdk\\emulator;C:\\Users\\Lenovo\\AppData\\Local\\Android\\Sdk\\cmdline-tools\\latest\\bin"
+  }
+}
